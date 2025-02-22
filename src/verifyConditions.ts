@@ -4,14 +4,9 @@ import { PluginConfig } from "./types/pluginConfig";
 import { ExecLogger, exec } from "./utils/exec";
 
 export async function verifyConditions(
-  config: PluginConfig,
+  _config: PluginConfig,
   { logger }: BaseContext,
 ): Promise<void> {
-  if (config.workingDirectory) {
-    logger.log("Changing directory to %s", config.workingDirectory);
-    process.chdir(config.workingDirectory);
-  }
-
   const { SSH_PUBLIC_KEY } = process.env;
 
   if (!SSH_PUBLIC_KEY) {
