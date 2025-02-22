@@ -6,11 +6,11 @@ export interface ExecLogger {
   error: (fmt: string, arg?: string) => void;
 }
 
-export const exec = (
+export async function exec(
   cmd: string,
   args: string[],
   logger: ExecLogger,
-): Promise<number> => {
+): Promise<number> {
   return new Promise((resolve, reject) => {
     // All of the below is basically taken from @actions/exec
     const cp = spawn(cmd, args);
@@ -53,7 +53,7 @@ export const exec = (
     cp.on("exit", finish);
     cp.on("close", finish);
   });
-};
+}
 
 function _processLineBuffer(
   data: Buffer,
@@ -76,5 +76,17 @@ function _processLineBuffer(
     return s;
   } catch (err) {
     return "";
+  }
+}
+
+export async function execThrow(
+  cmd: string,
+  args: string[],
+  logger: ExecLogger,
+): Promise<void> {
+  const ec = await exec(cmd, args, logger);
+
+  if (ec !== 0) {
+    throw new Error(`${cmd} ${args.join(" ")} exited non-zero (${ec})`);
   }
 }
