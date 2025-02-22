@@ -21,6 +21,7 @@ export async function prepare(
 
   process.chdir(dir);
 
+  // TODO: extract to utils/pkg
   replaceInFile("PKGBUILD", /^pkgver=.*$/, `pkgver=${version}`);
   replaceInFile("PKGBUILD", /^pkgrel=.*$/, "pkgrel=1");
 

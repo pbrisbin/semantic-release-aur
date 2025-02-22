@@ -1,8 +1,8 @@
-import path from "path";
 import { PublishContext } from "semantic-release";
 
 import { RawPluginConfig, defaultConfig } from "./types/pluginConfig";
 import { execThrow } from "./utils/exec";
+import { Git } from "./utils/git";
 
 export const publish = async (
   rawConfig: RawPluginConfig,
@@ -11,26 +11,22 @@ export const publish = async (
   const config = defaultConfig(rawConfig);
   const { logger } = context;
 
-  const dir = path.join(config.tempDirectory, config.packageName);
+  const git = new Git(config.tempDirectory, logger);
+  const dir = git.getCloneDirectory(config.packageName);
   process.chdir(dir);
 
-  const git = async (...args: string[]): Promise<void> => {
-    await execThrow("git", args, logger);
-  };
-
+  // TODO: extract to utils/pkg
   await execThrow("updpkgsums", [], logger);
   await execThrow("sh", ["-c", "makepkg --printsrcinfo >.SRCINFO"], logger);
 
-  await git(
-    "commit",
-    "-m",
-    `Release v${context.nextRelease.version}`,
-    "PKGBUILD",
-    ".SRCINFO",
-  );
+  await git.diff();
+  await git.commit({
+    message: `Release v${context.nextRelease.version}`,
+    paths: ["PKGBUILD", ".SRCINFO"],
+  });
 
   if (!context.branch.prerelease || config.pushPrerelease) {
-    await git("push");
+    await git.push();
   }
 
   logger.success("Pushed updated package to AUR");
