@@ -1,0 +1,6 @@
+also_exclude:
+  - dist/**/*
+
+restylers:
+  - "!clang-format"
+  - "*"
