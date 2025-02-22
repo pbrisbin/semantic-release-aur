@@ -13,17 +13,17 @@
 
 ## Steps
 
-| Step               | Description                                                                                    |
-| ------------------ | ---------------------------------------------------------------------------------------------- |
-| `verifyConditions` | verify the environment variable `SSH_PUBLIC_KEY` is set and tools like `makepkg` are available |
-| `prepare`          | Clones the AUR repository, updates files like the `PKGBUILD` and prints a `git diff`           |
-| `publish`          | Commits and pushes those changes, unless prerelease                                            |
+| Step               | Description                                                                                     |
+| ------------------ | ----------------------------------------------------------------------------------------------- |
+| `verifyConditions` | verify the environment variable `SSH_PRIVATE_KEY` is set and tools like `makepkg` are available |
+| `prepare`          | Clones the AUR repository, updates files like the `PKGBUILD` and prints a `git diff`            |
+| `publish`          | Commits and pushes those changes, unless prerelease                                             |
 
 ## Environment variables
 
-| Variable            | Description                                                    | Required |
-| ------------------- | -------------------------------------------------------------- | -------- |
-| `SSH_PUBLIC_KEY`    | Public key with push access to the AUR package repository      | true     |
+| Variable          | Description                                                    | Required |
+| ----------------- | -------------------------------------------------------------- | -------- |
+| `SSH_PRIVATE_KEY` | Private key with push access to the AUR package repository     | true     |
 
 ## Install
 
@@ -39,7 +39,7 @@ TODO
       git+https://github.com/pbrisbin/semantic-release-aur.git#main
   env:
     GITHUB_TOKEN: ${{ github.token }}
-    SSH_PUBLIC_KEY: ${{ secrets.AUR_SSH_PUBLIC_KEY }}
+    SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
 ```
 
 ## Usage

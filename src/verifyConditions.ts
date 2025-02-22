@@ -7,10 +7,10 @@ export async function verifyConditions(
   _config: RawPluginConfig,
   { logger }: BaseContext,
 ): Promise<void> {
-  const { SSH_PUBLIC_KEY } = process.env;
+  const { SSH_PRIVATE_KEY } = process.env;
 
-  if (!SSH_PUBLIC_KEY) {
-    throw new Error("SSH_PUBLIC_KEY must be set in the environment");
+  if (!SSH_PRIVATE_KEY) {
+    throw new Error("SSH_PRIVATE_KEY must be set in the environment");
   }
 
   await checkBinary("addpkgsums", logger);

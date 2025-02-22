@@ -11,7 +11,7 @@ export async function prepare(
   const config = defaultConfig(rawConfig);
   const { logger } = context;
 
-  // await configureSSH(env.SSH_PUBLIC_KEY, logger)
+  // await configureSSH(env.SSH_PRIVATE_KEY, logger)
 
   await cloneAUR(config.tempDirectory, config.packageName, logger);
 
@@ -25,6 +25,8 @@ export async function prepare(
 }
 
 const AUR = "ssh://aur@aur.archlinux.org";
+
+async function configureSSH(publicKey: string, logger: ExecLogger) {}
 
 async function cloneAUR(
   tmp: string,
