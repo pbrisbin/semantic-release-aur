@@ -1,10 +1,10 @@
 import { BaseContext } from "semantic-release";
 
-import { PluginConfig } from "./types/pluginConfig";
+import { RawPluginConfig } from "./types/pluginConfig";
 import { ExecLogger, exec } from "./utils/exec";
 
 export async function verifyConditions(
-  _config: PluginConfig,
+  _config: RawPluginConfig,
   { logger }: BaseContext,
 ): Promise<void> {
   const { SSH_PUBLIC_KEY } = process.env;

@@ -1,17 +1,32 @@
 import path from "path";
-import os from "os";
 import { PublishContext } from "semantic-release";
 
-import { PluginConfig } from "./types/pluginConfig";
+import { RawPluginConfig, defaultConfig } from "./types/pluginConfig";
 import { execThrow } from "./utils/exec";
 
 export const publish = async (
-  config: PluginConfig,
+  rawConfig: RawPluginConfig,
   context: PublishContext,
 ): Promise<void> => {
-  const name = config.packageName ?? path.basename(process.cwd());
-  const dir = path.join(config.tempDirectory ?? os.tmpdir(), name);
+  const config = defaultConfig(rawConfig);
   const { logger } = context;
-  await execThrow("git", ["--git-dir", dir, "push"], logger);
+
+  const dir = path.join(config.tempDirectory, config.packageName, ".git");
+  const git = async (...args: string[]): Promise<void> => {
+    await execThrow("git", ["--git-dir", dir].concat(args), logger);
+  };
+
+  await git(
+    "commit",
+    "-m",
+    `Release v${context.nextRelease.version}`,
+    "PKGBUILD",
+    ".SRCINFO",
+  );
+
+  if (!context.branch.prerelease || config.pushPrerelease) {
+    await git("push");
+  }
+
   logger.success("Pushed updated package to AUR");
 };

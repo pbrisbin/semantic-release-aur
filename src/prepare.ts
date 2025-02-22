@@ -1,24 +1,19 @@
 import path from "path";
-import os from "os";
 import { PrepareContext } from "semantic-release";
 
-import { PluginConfig } from "./types/pluginConfig";
+import { RawPluginConfig, defaultConfig } from "./types/pluginConfig";
 import { ExecLogger, exec, execThrow } from "./utils/exec";
 
 export async function prepare(
-  config: PluginConfig,
+  rawConfig: RawPluginConfig,
   context: PrepareContext,
 ): Promise<void> {
+  const config = defaultConfig(rawConfig);
   const { logger } = context;
-  const base = path.basename(process.cwd());
 
   // await configureSSH(env.SSH_PUBLIC_KEY, logger)
 
-  await cloneAUR(
-    config.tempDirectory ?? os.tmpdir(),
-    config.packageName ?? base,
-    logger,
-  );
+  await cloneAUR(config.tempDirectory, config.packageName, logger);
 
   // await updatePKGBUILD(logger)
 
@@ -38,6 +33,5 @@ async function cloneAUR(
 ): Promise<void> {
   const url = `${AUR}/${name}`;
   const dir = path.join(tmp, name);
-
   await execThrow("git", ["clone", url, dir], logger);
 }
