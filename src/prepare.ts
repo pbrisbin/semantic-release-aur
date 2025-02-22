@@ -1,53 +1,35 @@
 import fs from "fs";
-import path from "path";
-import os from "os";
 import { PrepareContext } from "semantic-release";
 
 import { RawPluginConfig, defaultConfig } from "./types/pluginConfig";
-import { ExecLogger, exec, execThrow } from "./utils/exec";
+import { Git } from "./utils/git";
 
 export async function prepare(
   rawConfig: RawPluginConfig,
   context: PrepareContext,
 ): Promise<void> {
   const config = defaultConfig(rawConfig);
-  const { logger } = context;
+  const { logger, nextRelease } = context;
+  const { version } = nextRelease;
+  const git = new Git(config.tempDirectory, logger);
+  const dir = await git.clone({
+    domain: AUR,
+    user: "aur",
+    keyContents: requireEnv("SSH_PRIVATE_KEY"),
+    repo: config.packageName,
+  });
 
-  const home = requireEnv("HOME");
-  const sshKey = requireEnv("SSH_PRIVATE_KEY");
-  await configureSSH(path.join(home, ".ssh", "config"), sshKey);
-
-  const dir = await cloneAUR(config.tempDirectory, config.packageName, logger);
   process.chdir(dir);
 
-  // sed -i "s/^pkgver=.*$/pkgver=$version/" PKGBUILD
-  // sed -i "s/^pkgrel=.*$/pkgrel=1/" PKGBUILD
+  replaceInFile("PKGBUILD", /^pkgver=.*$/, `pkgver=${version}`);
+  replaceInFile("PKGBUILD", /^pkgrel=.*$/, "pkgrel=1");
 
-  await exec("git", ["diff"], logger);
+  await git.diff();
 
   logger.success("Prepare done!");
 }
 
 const AUR = "aur.archlinux.org";
-
-async function configureSSH(configPath: string, keyContents: string) {
-  const keyPath = path.join(os.tmpdir(), "aur_id_rsa");
-  const configLines = ["", `Host ${AUR}`, `  IdentityFile ${keyPath}`];
-
-  fs.writeFileSync(keyPath, keyContents);
-  fs.appendFileSync(configPath, configLines.join("\n"));
-}
-
-async function cloneAUR(
-  tmp: string,
-  name: string,
-  logger: ExecLogger,
-): Promise<string> {
-  const url = `ssh://aur@${AUR}/${name}`;
-  const dir = path.join(tmp, name);
-  await execThrow("git", ["clone", url, dir], logger);
-  return dir;
-}
 
 function requireEnv(key: string): string {
   const val = process.env[key];
@@ -57,4 +39,9 @@ function requireEnv(key: string): string {
   }
 
   return val;
+}
+
+function replaceInFile(path: string, re: RegExp, replacement: string) {
+  const contents = fs.readFileSync(path, "utf-8");
+  fs.writeFileSync(path, contents.replace(re, replacement));
 }
