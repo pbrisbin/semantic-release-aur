@@ -11,10 +11,15 @@ export const publish = async (
   const config = defaultConfig(rawConfig);
   const { logger } = context;
 
-  const dir = path.join(config.tempDirectory, config.packageName, ".git");
+  const dir = path.join(config.tempDirectory, config.packageName);
+  process.chdir(dir);
+
   const git = async (...args: string[]): Promise<void> => {
-    await execThrow("git", ["--git-dir", dir].concat(args), logger);
+    await execThrow("git", args, logger);
   };
+
+  await execThrow("updpkgsums", [], logger);
+  await execThrow("sh", ["-c", "makepkg --printsrcinfo >.SRCINFO"], logger);
 
   await git(
     "commit",

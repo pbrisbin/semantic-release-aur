@@ -1,4 +1,6 @@
+import fs from "fs";
 import path from "path";
+import os from "os";
 import { PrepareContext } from "semantic-release";
 
 import { RawPluginConfig, defaultConfig } from "./types/pluginConfig";
@@ -11,29 +13,48 @@ export async function prepare(
   const config = defaultConfig(rawConfig);
   const { logger } = context;
 
-  // await configureSSH(env.SSH_PRIVATE_KEY, logger)
+  const home = requireEnv("HOME");
+  const sshKey = requireEnv("SSH_PRIVATE_KEY");
+  await configureSSH(path.join(home, ".ssh", "config"), sshKey);
 
-  await cloneAUR(config.tempDirectory, config.packageName, logger);
+  const dir = await cloneAUR(config.tempDirectory, config.packageName, logger);
+  process.chdir(dir);
 
-  // await updatePKGBUILD(logger)
-
-  // await updateSRCINFO(logger)
+  // sed -i "s/^pkgver=.*$/pkgver=$version/" PKGBUILD
+  // sed -i "s/^pkgrel=.*$/pkgrel=1/" PKGBUILD
 
   await exec("git", ["diff"], logger);
 
   logger.success("Prepare done!");
 }
 
-const AUR = "ssh://aur@aur.archlinux.org";
+const AUR = "aur.archlinux.org";
 
-async function configureSSH(publicKey: string, logger: ExecLogger) {}
+async function configureSSH(configPath: string, keyContents: string) {
+  const keyPath = path.join(os.tmpdir(), "aur_id_rsa");
+  const configLines = ["", `Host ${AUR}`, `  IdentityFile ${keyPath}`];
+
+  fs.writeFileSync(keyPath, keyContents);
+  fs.appendFileSync(configPath, configLines.join("\n"));
+}
 
 async function cloneAUR(
   tmp: string,
   name: string,
   logger: ExecLogger,
-): Promise<void> {
-  const url = `${AUR}/${name}`;
+): Promise<string> {
+  const url = `ssh://aur@${AUR}/${name}`;
   const dir = path.join(tmp, name);
   await execThrow("git", ["clone", url, dir], logger);
+  return dir;
+}
+
+function requireEnv(key: string): string {
+  const val = process.env[key];
+
+  if (!val) {
+    throw new Error(`Required environment variable ${key} not set`);
+  }
+
+  return val;
 }
