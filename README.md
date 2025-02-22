@@ -8,16 +8,25 @@
 ## Requirements
 
 1. Package exists already on AUR
-2. Release is run on an Arch Linux system. For GitHub Actions, that means
+1. Release is run on an Arch Linux system. For GitHub Actions, that means
    running in an Arch Linux docker image.
+
+   ```yaml
+   # TODO: show example
+   ```
+
+> [!NOTE]
+>
+> The use case we support is running semantic-release in the source repository
+> that is being packaged, not in the AUR package repository itself.
 
 ## Steps
 
-| Step               | Description                                                                                     |
-| ------------------ | ----------------------------------------------------------------------------------------------- |
-| `verifyConditions` | verify the environment variable `SSH_PRIVATE_KEY` is set and tools like `makepkg` are available |
-| `prepare`          | Clones the AUR repository, updates files like the `PKGBUILD` and prints a `git diff`            |
-| `publish`          | Commits and pushes those changes, unless prerelease                                             |
+| Step               | Description                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------- |
+| `verifyConditions` | verify the environment variable `SSH_PRIVATE_KEY` is set and tools like `makepkg` are available   |
+| `prepare`          | Configure SSH, clone the AUR repository, update version in the `PKGBUILD`, and print a `git diff` |
+| `publish`          | Update pkg checksums, `SRCINFO`, commit and push (unless prerelease)                              |
 
 ## Environment variables
 
