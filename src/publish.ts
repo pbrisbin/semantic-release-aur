@@ -25,8 +25,9 @@ export const publish = async (
   });
 
   if (!context.branch.prerelease || config.pushPrerelease) {
+    logger.info("Pushing to AUR git repository");
     await git.push();
   }
 
-  logger.success("Pushed updated package to AUR");
+  logger.success("Publish done!");
 };
