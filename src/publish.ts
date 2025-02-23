@@ -1,8 +1,8 @@
 import { PublishContext } from "semantic-release";
 
 import { RawPluginConfig, defaultConfig } from "./types/pluginConfig";
-import { execThrow } from "./utils/exec";
 import { Git } from "./utils/git";
+import { updatePKGBUILDChecksums, updateSRCINFO } from "./utils/pkg";
 
 export const publish = async (
   rawConfig: RawPluginConfig,
@@ -15,9 +15,8 @@ export const publish = async (
   const dir = git.getCloneDirectory(config.packageName);
   process.chdir(dir);
 
-  // TODO: extract to utils/pkg
-  await execThrow("updpkgsums", [], logger);
-  await execThrow("sh", ["-c", "makepkg --printsrcinfo >.SRCINFO"], logger);
+  await updatePKGBUILDChecksums(logger);
+  await updateSRCINFO(logger);
 
   await git.diff();
   await git.commit({

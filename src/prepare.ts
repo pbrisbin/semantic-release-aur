@@ -1,8 +1,8 @@
-import fs from "fs";
 import { PrepareContext } from "semantic-release";
 
 import { RawPluginConfig, defaultConfig } from "./types/pluginConfig";
 import { Git } from "./utils/git";
+import { updatePKGBUILDVersion } from "./utils/pkg";
 
 export async function prepare(
   rawConfig: RawPluginConfig,
@@ -21,9 +21,7 @@ export async function prepare(
 
   process.chdir(dir);
 
-  // TODO: extract to utils/pkg
-  replaceInFile("PKGBUILD", /^pkgver=.*$/, `pkgver=${version}`);
-  replaceInFile("PKGBUILD", /^pkgrel=.*$/, "pkgrel=1");
+  updatePKGBUILDVersion(version);
 
   await git.diff();
 
@@ -40,9 +38,4 @@ function requireEnv(key: string): string {
   }
 
   return val;
-}
-
-function replaceInFile(path: string, re: RegExp, replacement: string) {
-  const contents = fs.readFileSync(path, "utf-8");
-  fs.writeFileSync(path, contents.replace(re, replacement));
 }
