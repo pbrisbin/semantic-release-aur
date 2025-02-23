@@ -1,6 +1,7 @@
 import { PrepareContext } from "semantic-release";
 
 import { RawPluginConfig, defaultConfig } from "./types/pluginConfig";
+import * as env from "./utils/env";
 import { Git } from "./utils/git";
 import { updatePKGBUILDVersion } from "./utils/pkg";
 
@@ -15,7 +16,7 @@ export async function prepare(
   const dir = await git.clone({
     domain: AUR,
     user: "aur",
-    keyContents: requireEnv("SSH_PRIVATE_KEY"),
+    keyContents: env.get("SSH_PRIVATE_KEY"),
     repo: config.packageName,
   });
 
@@ -29,13 +30,3 @@ export async function prepare(
 }
 
 const AUR = "aur.archlinux.org";
-
-function requireEnv(key: string): string {
-  const val = process.env[key];
-
-  if (!val) {
-    throw new Error(`Required environment variable ${key} not set`);
-  }
-
-  return val;
-}
