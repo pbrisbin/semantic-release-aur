@@ -3,8 +3,8 @@ import fs from "fs";
 import { ExecLogger, execThrow } from "./exec";
 
 export function updatePKGBUILDVersion(version: string): void {
-  replaceInFile("PKGBUILD", /^pkgver=.*$/, `pkgver=${version}`);
-  replaceInFile("PKGBUILD", /^pkgrel=.*$/, "pkgrel=1");
+  replaceInFile("PKGBUILD", /^pkgver=.*$/m, `pkgver=${version}`);
+  replaceInFile("PKGBUILD", /^pkgrel=.*$/m, "pkgrel=1");
 }
 
 export async function updatePKGBUILDChecksums(

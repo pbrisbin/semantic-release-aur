@@ -12,7 +12,7 @@ describe("updatePKGBUILDVersion", () => {
         "# Author: Patrick Brisbin <pbrisbin@gmail.com>",
         "pkgname=downgrade",
         "pkgver=11.4.4",
-        "pkgrel=1",
+        "pkgrel=2",
         'pkgdesc="Bash script for downgrading one or more packages to a version in your cache or the A.L.A."',
         "arch=('any')",
         'url="https://github.com/archlinux-downgrade/$pkgname"',
@@ -33,6 +33,16 @@ describe("updatePKGBUILDVersion", () => {
 
     try {
       updatePKGBUILDVersion("1.2.0");
+
+      const updated = fs.readFileSync("PKGBUILD", "utf-8");
+
+      expect(updated.split("\n").find((l) => l.startsWith("pkgver"))).toBe(
+        "pkgver=1.2.0",
+      );
+
+      expect(updated.split("\n").find((l) => l.startsWith("pkgrel"))).toBe(
+        "pkgrel=1",
+      );
     } finally {
       fs.unlinkSync("PKGBUILD");
     }
