@@ -25,13 +25,13 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "tslib": "^2.6.2",
-    "typescript-eslint": "^8.24.1"
+    "tslib": "^2.6.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/semantic-release": "^20.0.6",
     "@types/signale": "^1.4.7",
+    "typescript-eslint": "^8.24.1",
     "@typescript-eslint/eslint-plugin": "^8.24.1",
     "@typescript-eslint/parser": "^8.24.1",
     "eslint": "^9.21.0",
