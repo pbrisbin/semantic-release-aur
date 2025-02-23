@@ -14,7 +14,7 @@ export async function prepare(
   const { version } = nextRelease;
   const git = new Git(config.tempDirectory, logger);
   const dir = await git.clone({
-    domain: AUR,
+    domain: "aur.archlinux.org",
     user: "aur",
     keyContents: env.get("SSH_PRIVATE_KEY"),
     repo: config.packageName,
@@ -28,5 +28,3 @@ export async function prepare(
 
   logger.success("Prepare done!");
 }
-
-const AUR = "aur.archlinux.org";
