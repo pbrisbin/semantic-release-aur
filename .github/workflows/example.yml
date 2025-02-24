@@ -1,0 +1,46 @@
+name: Example
+
+on:
+  pull_request:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    container:
+      image: "archlinux:latest"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: src
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: yarn
+          node-version-file: ".nvmrc"
+      - run: yarn install
+      - run: yarn build
+
+      # Trick the checkout action to checkout the AUR package repository
+      - uses: actions/checkout@v4
+        with:
+          path: pkg
+          repository: downgrade
+          ssh-user: aur
+          ssh-key: ${{ secrets.AUR_DOWNGRADE_SSH_KEY }}
+          ssh-strict: false
+          github-server-url: aur.archlinux.org
+
+      - run: |
+          cat > .releaserc.yaml <<'EOM'
+          branches: [main]
+          plugins:
+            - @semantic-release/commit-analyzer
+            - @semantic-release/release-notes-generator
+            - @semantic-release/github
+            - semantic-release-aur
+          EOM
+
+      - run: yarn add -D semantic-release ../src
+      - run: semantic-release --dryRun
