@@ -7,7 +7,7 @@ async function verifyConditions(_config, { logger }) {
     if (!SSH_PRIVATE_KEY) {
         throw new Error("SSH_PRIVATE_KEY must be set in the environment");
     }
-    await checkBinary("addpkgsums", logger);
+    await checkBinary("updpkgsums", logger);
     await checkBinary("makepkg", logger);
     logger.success("Verify conditions done!");
 }
