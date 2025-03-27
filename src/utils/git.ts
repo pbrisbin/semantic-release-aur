@@ -43,6 +43,8 @@ export class Git {
       "  UserKnownHostsFile /dev/null",
     ];
 
+    this.mkdir_p(path.dirname(configPath));
+
     fs.writeFileSync(keyPath, keyContents);
     fs.appendFileSync(configPath, configLines.join("\n"));
 
@@ -66,5 +68,13 @@ export class Git {
 
   public async push(): Promise<void> {
     await execThrow("git", ["push"], this.logger);
+  }
+
+  private mkdir_p(dir: string): void {
+    const exists = fs.existsSync(dir);
+
+    if (!exists) {
+      fs.mkdirSync(dir);
+    }
   }
 }
