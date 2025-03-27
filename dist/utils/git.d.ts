@@ -18,4 +18,5 @@ export declare class Git {
     diff(): Promise<void>;
     commit(options: CommitOptions): Promise<void>;
     push(): Promise<void>;
+    private mkdir_p;
 }

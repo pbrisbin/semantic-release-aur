@@ -29,6 +29,7 @@ class Git {
             "  StrictHostKeyChecking no",
             "  UserKnownHostsFile /dev/null",
         ];
+        this.mkdir_p(path_1.default.dirname(configPath));
         fs_1.default.writeFileSync(keyPath, keyContents);
         fs_1.default.appendFileSync(configPath, configLines.join("\n"));
         await (0, exec_1.execThrow)("git", ["clone", url, dir], this.logger);
@@ -43,6 +44,12 @@ class Git {
     }
     async push() {
         await (0, exec_1.execThrow)("git", ["push"], this.logger);
+    }
+    mkdir_p(dir) {
+        const exists = fs_1.default.existsSync(dir);
+        if (!exists) {
+            fs_1.default.mkdirSync(dir);
+        }
     }
 }
 exports.Git = Git;
